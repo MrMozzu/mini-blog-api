@@ -16,6 +16,9 @@ def create_app():
     from app.users.models import User
     from app.posts.models import Post
 
+    with app.app_context():
+        db.create_all()
+
     from app.users.routes import users_bp
     from app.posts.routes import post_bp
 
