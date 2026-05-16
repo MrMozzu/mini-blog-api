@@ -1,0 +1,9 @@
+### create post 
+
+POST http://127.0.0.1:5000/users/1/posts
+Content-Type: application/json
+
+{
+    "title": "learning Flask",
+    "content": "There is always a bigger fish in the sea"
+}
