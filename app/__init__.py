@@ -11,6 +11,8 @@ def create_app():
     migrate.init_app(app, db)
     ma.init_app(app)
 
+    with app.app_context():
+        db.create_all()
     from app.users.models import User
     from app.posts.models import Post
 
