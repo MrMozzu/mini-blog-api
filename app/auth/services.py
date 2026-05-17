@@ -1,4 +1,4 @@
-from app.auth.utils import hash_password
+from app.auth.utils import hash_passwor, verify_password
 from app.users.models import User
 from app.extensions import db
 
@@ -21,3 +21,17 @@ def register_user(email, password):
 
 
 
+def login(email, password):
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return {"error": "email is not registered"}, 401
+
+    is_valid = verify_password(password, user.password_hash)
+
+    if not is_valid:
+        return {"error": "Invalid password"}
+
+    
+    return {"message": "Login Succsessful"}, 200
