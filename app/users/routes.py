@@ -36,5 +36,9 @@ def get_user(user_id):
 
     return jsonify(user_schema.dump(user)), 200
 
-
-
+@users_bp.delete("/<int:user_id>")
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"message": "User deleted successfully"}), 200

@@ -1,9 +1,20 @@
 from flask import Flask
+from flask_cors import CORS
 from app.extensions import db, migrate, ma
 
 def create_app():
 
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../frontend', static_url_path='')
+    CORS(app)
+
+    @app.route('/')
+    @app.route('/home')
+    def index():
+        return app.send_static_file('inkwell.html')
+
+    @app.route('/frontend/<path:filename>')
+    def serve_frontend(filename):
+        return app.send_static_file(filename)
 
     app.config.from_object("config.Config")
 
@@ -11,19 +22,20 @@ def create_app():
     migrate.init_app(app, db)
     ma.init_app(app)
 
-    with app.app_context():
-        db.create_all()
-    from app.users.models import User
-    from app.posts.models import Post
-
-    with app.app_context():
-        db.create_all()
-
     from app.users.routes import users_bp
     from app.posts.routes import post_bp
+    from app.auth.routes import auth_bp
+
+    # Import models here so they are registered with SQLAlchemy
+    from app.users.models import User  # noqa: F401
+    from app.posts.models import Post  # noqa: F401
+
+    with app.app_context():
+        db.create_all()
 
     app.register_blueprint(users_bp)
     app.register_blueprint(post_bp)
+    app.register_blueprint(auth_bp)
 
     return app 
 
