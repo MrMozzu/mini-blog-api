@@ -1,4 +1,4 @@
-from app.auth.utils import hash_passwor, verify_password
+from app.auth.utils import hash_password, verify_password
 from app.users.models import User
 from app.extensions import db
 

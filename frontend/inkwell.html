@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Inkwell</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<aside>
+  <div class="brand">
+    <div class="brand-name"><em>Ink</em>well</div>
+    <div class="brand-tagline">Blog Management</div>
+  </div>
+  <nav>
+    <div class="nav-item active" onclick="switchView('posts')"><span class="nav-icon">◈</span> Posts</div>
+    <div class="nav-item" onclick="switchView('users')"><span class="nav-icon">○</span> Authors</div>
+    <div class="nav-item" onclick="switchView('write')"><span class="nav-icon">◇</span> Write</div>
+    <div class="nav-item" onclick="switchView('newuser')"><span class="nav-icon">＋</span> New Author</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="api-label">API endpoint</div>
+    <input id="apiInput" type="text" value="http://localhost:5000" placeholder="http://localhost:5000"/>
+    <button class="save-api" onclick="saveBase()">Save endpoint</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="pageTitle">All posts</div>
+    <div class="topbar-actions">
+      <span class="count-pill" id="countPill">–</span>
+      <button class="btn-refresh" onclick="refresh()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="view active" id="view-posts">
+      <div class="filter-row" id="authorFilters">
+        <span class="filter-label">Filter</span>
+        <button class="filter-btn active" onclick="filterPosts(null,this)">All</button>
+      </div>
+      <div id="postsContainer"><div class="loading-line">Loading…</div></div>
+    </div>
+
+    <div class="view" id="view-users">
+      <div class="users-grid" id="usersContainer">
+        <div class="loading-line" style="grid-column:1/-1">Loading…</div>
+      </div>
+    </div>
+
+    <div class="view" id="view-write">
+      <div class="form-wrap">
+        <div class="form-section-title">Write a new post</div>
+        <div class="field"><label class="field-label">Author</label><select id="postAuthor"><option value="">Select author…</option></select></div>
+        <div class="field"><label class="field-label">Title</label><input type="text" id="postTitle" placeholder="An evocative headline…"/></div>
+        <div class="field"><label class="field-label">Body</label><textarea id="postContent" placeholder="What story are you telling today?"></textarea></div>
+        <div class="form-actions">
+          <button class="btn-submit" onclick="createPost()">Publish post</button>
+          <button class="btn-cancel" onclick="switchView('posts')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-newuser">
+      <div class="form-wrap">
+        <div class="form-section-title">Add a new author</div>
+        <div class="field"><label class="field-label">Full name</label><input type="text" id="newName" placeholder="e.g. Virginia Woolf"/></div>
+        <div class="field"><label class="field-label">Email address</label><input type="email" id="newEmail" placeholder="author@inkwell.io"/></div>
+        <div class="form-actions">
+          <button class="btn-submit" onclick="createUser()">Create author</button>
+          <button class="btn-cancel" onclick="switchView('users')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-backdrop" id="editModal">
+  <div class="modal">
+    <div class="modal-title">Edit post</div>
+    <input type="hidden" id="editId"/>
+    <div class="field"><label class="field-label">Title</label><input type="text" id="editTitle"/></div>
+    <div class="field"><label class="field-label">Body</label><textarea id="editContent" style="min-height:120px"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-submit" onclick="saveEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="app.js" defer></script>
+</body>
+</html>

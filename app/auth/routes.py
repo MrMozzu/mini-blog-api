@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from app.auth.services import register_user
+from app.auth.services import register_user, login as login_service
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -17,14 +17,14 @@ def register():
 
 
 @auth_bp.post("/login")
-def login():
+def login_route():
 
     data = request.get_json()
 
-    email = data.get["email"]
-    password = data.get["password"]
+    email = data.get("email")
+    password = data.get("password")
 
-    return login(email, password)
+    return login_service(email, password)
 
 
     

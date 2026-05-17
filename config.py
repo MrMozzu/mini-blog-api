@@ -13,3 +13,8 @@ class Config:
         
     SQLALCHEMY_DATABASE_URI = database_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    PASSWORD_PEPPER = os.getenv("PASSWORD_PEPPER")
+
+
+    

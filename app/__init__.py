@@ -22,16 +22,16 @@ def create_app():
     migrate.init_app(app, db)
     ma.init_app(app)
 
-    from app.users.routes import users_bp
-    from app.posts.routes import post_bp
-    from app.auth.routes import auth_bp
-
-    # Import models here so they are registered with SQLAlchemy
-    from app.users.models import User  # noqa: F401
-    from app.posts.models import Post  # noqa: F401
+    from app.users.models import User
+    from app.posts.models import Post
 
     with app.app_context():
         db.create_all()
+
+
+    from app.users.routes import users_bp
+    from app.posts.routes import post_bp
+    from app.auth.routes import auth_bp
 
     app.register_blueprint(users_bp)
     app.register_blueprint(post_bp)
