@@ -11,10 +11,9 @@ class UserSchema(ma.SQLAlchemySchema):
     id = ma.auto_field(dump_only=True)
     name = ma.auto_field()
     email = ma.auto_field()
-    password_hash = ma.auto_field(load_only=True)
+    password_hash = ma.auto_field()
 
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
-    
