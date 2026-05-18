@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from app.extensions import db, migrate, ma
+from app.extensions import db, migrate, ma, jwt
 
 def create_app():
 
@@ -13,6 +13,8 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     ma.init_app(app)
+    jwt.init_app(app)
+   
 
     from app.users.models import User
     from app.posts.models import Post

@@ -1,9 +1,10 @@
 ### create post 
 
-POST  https://mini-blog-api-ccc8.onrender.com/auth/login
+POST https://mini-blog-api-ccc8.onrender.com/auth/login
 Content-Type: application/json
 
 {
-  "email": "mozzu@3005gmail.com",
-  "password": "err#$#%%"
+  "email": "mozzu@3005gmal.com",
+  "password":"78346587",
+  "name" : "muzammil"
 }

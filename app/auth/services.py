@@ -1,6 +1,8 @@
 from app.auth.utils import hash_password, verify_password
 from app.users.models import User
 from app.extensions import db
+from flask_jwt_extended import create_access_token, create_refresh_token
+
 
 def register_user(email, password):
 
@@ -34,5 +36,11 @@ def login(email, password):
     if not is_valid:
         return {"error": "Invalid password"}
 
+    access_token = create_access_token(identity=str(user.id))  # used to authenticate the user
+    refresh_token = create_refresh_token(identity=str(user.id))  # used to get new access token when it is expiered
+
     
-    return {"message": "Login Succsessful"}, 200
+    return {"message": "Login Succsessful",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+    }, 200

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from app.extensions import db
+from app.extensions import db, jwt
 from app.posts.models import Post
 from app.posts.schemas import post_schema, posts_schema
 from app.users.models import User
@@ -8,16 +9,17 @@ from app.users.models import User
 
 post_bp = Blueprint("posts", __name__)
 
-@post_bp.post("/users/<int:user_id>/posts")
+@post_bp.post("/posts")
+@jwt_required()  # verifies that the endpoint cannot be acces without a token and is valid token compares with the token that is sent to the client at the time of login 
 def create_post(user_id):
 
-    user = User.query.get_or_404(user_id)
+    current_user_id = get_jwt_identity()  # extracts the identity like id or username from the token
 
     data = request.get_json()
 
     post = post_schema.load(data)
 
-    post.user = user
+    post.user_id = current_user_id # links the post to the authenticated user
 
     db.session.add(post)
     db.session.commit()
