@@ -1,10 +1,9 @@
 ### create post 
 
-POST https://mini-blog-api-ccc8.onrender.com/127.0.0.1:5000/users/1/posts
+POST  https://mini-blog-api-ccc8.onrender.com/auth/login
 Content-Type: application/json
 
 {
-  "title": "My first deployed post",
-  "content": "This post was created on Render.",
-  "user_id": 1
+  "email": "mozzu@3005gmail.com",
+  "password": "err#$#%%"
 }

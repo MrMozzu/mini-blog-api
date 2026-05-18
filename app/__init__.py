@@ -4,18 +4,10 @@ from app.extensions import db, migrate, ma
 
 def create_app():
 
-    app = Flask(__name__, static_folder='../frontend', static_url_path='')
+    app = Flask(__name__)
     CORS(app)
-
-    @app.route('/')
-    @app.route('/home')
-    def index():
-        return app.send_static_file('inkwell.html')
-
-    @app.route('/frontend/<path:filename>')
-    def serve_frontend(filename):
-        return app.send_static_file(filename)
-
+    
+   
     app.config.from_object("config.Config")
 
     db.init_app(app)
