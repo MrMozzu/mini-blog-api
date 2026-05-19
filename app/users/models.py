@@ -9,7 +9,9 @@ class User(db.Model):
 
     email = db.Column(db.String, unique=True,nullable=False)
 
-    password_hash = db.Column(db.Text, nullable=False)
+    role = db.Column(db.String, default="user")
+
+    password_hash = db.Column(db.Text)
 
     post = db.relationship(
         "Post",

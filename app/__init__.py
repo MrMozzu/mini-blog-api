@@ -1,26 +1,22 @@
 from flask import Flask
 from flask_cors import CORS
-from app.extensions import db, migrate, ma
+from dotenv import load_dotenv
+from app.extensions import db, migrate, ma, jwt
 
 def create_app():
+    load_dotenv()
 
-    app = Flask(__name__, static_folder='../frontend', static_url_path='')
+    app = Flask(__name__)
     CORS(app)
-
-    @app.route('/')
-    @app.route('/home')
-    def index():
-        return app.send_static_file('inkwell.html')
-
-    @app.route('/frontend/<path:filename>')
-    def serve_frontend(filename):
-        return app.send_static_file(filename)
-
+    
+   
     app.config.from_object("config.Config")
 
     db.init_app(app)
     migrate.init_app(app, db)
     ma.init_app(app)
+    jwt.init_app(app)
+   
 
     from app.users.models import User
     from app.posts.models import Post

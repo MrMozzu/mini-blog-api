@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 class Config:
     database_url = os.environ.get("DATABASE_URL")
@@ -14,7 +15,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = database_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    PASSWORD_PEPPER = os.getenv("PASSWORD_PEPPER")
+    PASSWORD_PEPPER = os.getenv("PASSWORD_PEPPER", "")
+
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "3654656354")
+
+    JWT_ACCESS_TOKEN_EXPIRES  = timedelta(minutes=15)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
+
 
 
     
