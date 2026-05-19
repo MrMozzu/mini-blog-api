@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5000'; // Or your deployed URL
+const API_URL = 'https://mini-blog-api-ccc8.onrender.com'; // Live Render backend
+// const API_URL = 'http://localhost:5000'; // Local development backend
 
 // --- State Management ---
 let state = {
