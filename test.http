@@ -3,8 +3,8 @@ POST https://mini-blog-api-ccc8.onrender.com/auth/register
 Content-Type: application/json
 
 {
-  "email": "testuser@example.com",
-  "password": "password123"
+  "email": "muzammilahsan07@gmail.com",
+  "password": "41254125"
 }
 
 ### Login Test
@@ -13,5 +13,9 @@ Content-Type: application/json
 
 {
   "email": "muzammilahsan07@gmail.com",
-  "password": "password123"
+  "password": "41254125"
 }
+
+### Protected Route Test (Get All Users)
+GET https://mini-blog-api-ccc8.onrender.com/users/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3OTIwNzY1NywianRpIjoiZjI5NzY1MzMtNWM0Zi00ZWVkLTg1NzYtNzkwYTNiMjBlN2Y2IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjUiLCJuYmYiOjE3NzkyMDc2NTcsImNzcmYiOiI2YWNlYmZkNi1mYTk0LTQ4ZmItOGMwOS1hNmFjOGVhZDkxMzUiLCJleHAiOjE3NzkyMDg1NTcsInJvbGUiOiJhZG1pbiJ9.MGSOnm1zer5xQ1BDsttVkCuTv1SP7RC09HAWuNYYlZw
