@@ -1,10 +1,19 @@
-### create post 
-
+### Register Test
 POST https://mini-blog-api-ccc8.onrender.com/auth/register
 Content-Type: application/json
 
 {
   "email": "hamzaboka@gmai.com",
-  "password":"789456123",
-  "name" : "Humza"
+  "password": "789456123",
+  "name": "Humza"
+}
+
+### Login Test
+POST https://mini-blog-api-ccc8.onrender.com/auth/login
+Content-Type: application/json
+
+{
+  "email": "mozzu@3005gmal.com",
+  "password": "78346587",
+  "name": "muzammil"
 }
