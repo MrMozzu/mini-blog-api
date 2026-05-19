@@ -15,7 +15,7 @@ def register_user(email, password):
     hashed_password = hash_password(password) # if new user then hash its password
 
     username = email.split('@')[0] if email else "User"
-    user = User(name=username, email=email, password_hash=hashed_password)  # collect it in an object 
+    user = User(name=username, email=email, password_hash=hashed_password, role="user")  # collect it in an object 
 
     db.session.add(user) # added to the session
     db.session.commit()  # committed
@@ -34,9 +34,9 @@ def login(email, password):
     is_valid = verify_password(password, user.password_hash)
 
     if not is_valid:
-        return {"error": "Invalid password"}
+        return {"error": "Invalid password"}, 401
 
-    access_token = create_access_token(identity=str(user.id))  # used to authenticate the user
+    access_token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})  # used to authenticate the user
     refresh_token = create_refresh_token(identity=str(user.id))  # used to get new access token when it is expiered
 
     
@@ -44,3 +44,5 @@ def login(email, password):
             "access_token": access_token,
             "refresh_token": refresh_token
     }, 200
+
+    

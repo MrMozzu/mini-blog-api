@@ -26,9 +26,36 @@ def verify_password(password: str, hashed_password: str) -> bool: # this functio
 
     hashed_bytes = hashed_password.encode("utf-8")
 
-    return bcrypt.checkpw(password_bytes, hashed_bytes)
+    try:
+        return bcrypt.checkpw(password_bytes, hashed_bytes)
+    except ValueError:
+        return False
 
 
 
 
+from flask import jsonify
+from functools import wraps
+from flask_jwt_extended import get_jwt, verify_jwt_in_request
 
+
+def admin_required():
+
+    def wrapper(fn):
+
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+
+            verify_jwt_in_request()
+
+            claims = get_jwt()
+
+            if claims.get("role") != "admin":
+                return jsonify({"error": "You are not authorized"}), 403
+
+
+            return fn(*args, **kwargs)
+        
+        return decorator
+        
+    return wrapper
