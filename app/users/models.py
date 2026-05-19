@@ -11,7 +11,7 @@ class User(db.Model):
 
     role = db.Column(db.String, default="user")
 
-    password_hash = db.Column(db.Text)
+    password_hash = db.Column(db.Text, nullable=True)
 
     post = db.relationship(
         "Post",
