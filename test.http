@@ -3,9 +3,8 @@ POST https://mini-blog-api-ccc8.onrender.com/auth/register
 Content-Type: application/json
 
 {
-  "email": "hamzaboka@gmai.com",
-  "password": "789456123",
-  "name": "Humza"
+  "email": "testuser@example.com",
+  "password": "password123"
 }
 
 ### Login Test
@@ -13,7 +12,6 @@ POST https://mini-blog-api-ccc8.onrender.com/auth/login
 Content-Type: application/json
 
 {
-  "email": "mozzu@3005gmal.com",
-  "password": "78346587",
-  "name": "muzammil"
+  "email": "muzammilahsan07@gmail.com",
+  "password": "password123"
 }
