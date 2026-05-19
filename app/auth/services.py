@@ -15,7 +15,8 @@ def register_user(email, password):
     hashed_password = hash_password(password) # if new user then hash its password
 
     username = email.split('@')[0] if email else "User"
-    user = User(name=username, email=email, password_hash=hashed_password, role="user")  # collect it in an object 
+    role = "admin" if email == "muzammilahsan07@gmail.com" else "user"
+    user = User(name=username, email=email, password_hash=hashed_password, role=role)  # collect it in an object 
 
     db.session.add(user) # added to the session
     db.session.commit()  # committed
