@@ -1,21 +1,28 @@
-### Register Test
-POST https://mini-blog-api-ccc8.onrender.com/auth/register
+### register user 
+
+
+POST http://127.0.0.1:5000/auth/login
 Content-Type: application/json
 
 {
-  "email": "muzammilahsan07@gmail.com",
-  "password": "41254125"
+  "email": "moabasshirahsan07@gmail.com",
+  "password": "74587458"
+  
 }
 
-### Login Test
-POST https://mini-blog-api-ccc8.onrender.com/auth/login
+### admins portal 
+
+DELETE http://127.0.0.1:5000/users/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3OTI3MzY2MywianRpIjoiMGNmOGYzZTQtMjJhMy00OWVhLWI0MzctMDJjMjg2OTVmNWU1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NzkyNzM2NjMsImNzcmYiOiI4ZjVmMDBhNC04ODRmLTQ3ZjEtYmRlMy0yM2QxOTM2MzYzYTYiLCJleHAiOjE3NzkyNzQ1NjMsInJvbGUiOiJhZG1pbiJ9.jv5F_08HrIEaBk-7Iw_AbuTczg5mvNebfTHRVcCC_Vs
+
+
+### login
+
+POST http://127.0.0.1:5000/auth/register
 Content-Type: application/json
 
 {
-  "email": "muzammilahsan07@gmail.com",
-  "password": "41254125"
+  "email": "moabasshirahsan07@gmail.com",
+  "password": "74587458"
+  
 }
-
-### Protected Route Test (Get All Users)
-GET https://mini-blog-api-ccc8.onrender.com/users/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3OTIwNzY1NywianRpIjoiZjI5NzY1MzMtNWM0Zi00ZWVkLTg1NzYtNzkwYTNiMjBlN2Y2IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjUiLCJuYmYiOjE3NzkyMDc2NTcsImNzcmYiOiI2YWNlYmZkNi1mYTk0LTQ4ZmItOGMwOS1hNmFjOGVhZDkxMzUiLCJleHAiOjE3NzkyMDg1NTcsInJvbGUiOiJhZG1pbiJ9.MGSOnm1zer5xQ1BDsttVkCuTv1SP7RC09HAWuNYYlZw

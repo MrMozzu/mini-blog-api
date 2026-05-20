@@ -1,3 +1,4 @@
+import flask_jwt_extended
 import bcrypt 
 from flask import current_app
 
@@ -59,3 +60,41 @@ def admin_required():
         return decorator
         
     return wrapper
+
+
+
+from functools import wraps
+from flask import jsonify
+
+from flask_jwt_extended import get_jwt_identity, jwt_required
+
+from app.users.models import User
+from app.auth.permissions import ROLE_PERMISSIONS
+
+
+def permission_required(*permission):
+
+    def decorator(fn):
+
+        @wraps(fn)
+        @jwt_required()
+        def  wrapper(*args, **kwargs):
+
+            current_user_id = get_jwt_identity()
+
+            user = User.query.get(current_user_id)
+
+            permissions = ROLE_PERMISSIONS.get(user.role, [])
+
+            if permission not in permissions:
+                return jsonify({"error": "Forbidden"}), 403
+
+            
+            return fn(*args, **kwargs)
+
+        return wrapper
+    
+    return decorator
+            
+
+

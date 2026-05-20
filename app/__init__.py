@@ -28,11 +28,12 @@ def create_app():
     from app.users.routes import users_bp
     from app.posts.routes import post_bp
     from app.auth.routes import auth_bp
+    
 
     app.register_blueprint(users_bp)
     app.register_blueprint(post_bp)
     app.register_blueprint(auth_bp)
-
+ 
     return app 
 
     
