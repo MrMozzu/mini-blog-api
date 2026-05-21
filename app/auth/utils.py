@@ -1,4 +1,3 @@
-import flask_jwt_extended
 import bcrypt 
 from flask import current_app
 
@@ -33,68 +32,45 @@ def verify_password(password: str, hashed_password: str) -> bool: # this functio
         return False
 
 
-
-
-from flask import jsonify
 from functools import wraps
-from flask_jwt_extended import get_jwt, verify_jwt_in_request
+from flask import jsonify
+
+from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+
+from app.users.models import User
+from app.auth.permissions import ROLE_PERMISSIONS
 
 
-def admin_required():
+def permission_required(*required_permission):
 
     def wrapper(fn):
 
         @wraps(fn)
         def decorator(*args, **kwargs):
 
-            verify_jwt_in_request()
-
-            claims = get_jwt()
-
-            if claims.get("role") != "admin":
-                return jsonify({"error": "You are not authorized"}), 403
-
-
-            return fn(*args, **kwargs)
-        
-        return decorator
-        
-    return wrapper
-
-
-
-from functools import wraps
-from flask import jsonify
-
-from flask_jwt_extended import get_jwt_identity, jwt_required
-
-from app.users.models import User
-from app.auth.permissions import ROLE_PERMISSIONS
-
-
-def permission_required(*permission):
-
-    def decorator(fn):
-
-        @wraps(fn)
-        @jwt_required()
-        def  wrapper(*args, **kwargs):
+            try:
+                verify_jwt_in_request()
+            except Exception as e:
+                return jsonify({"error": "Missing or invalid token"}), 401
 
             current_user_id = get_jwt_identity()
+            current_user = User.query.get(current_user_id)
 
-            user = User.query.get(current_user_id)
-
-            permissions = ROLE_PERMISSIONS.get(user.role, [])
-
-            if permission not in permissions:
-                return jsonify({"error": "Forbidden"}), 403
+            if not current_user:
+                return jsonify({"error": "User not found"}), 404
 
             
+            user_permissions = ROLE_PERMISSIONS.get(current_user.role, [])
+
+            if not any(p in user_permissions for p in required_permission):
+                return jsonify({"error": "Not Authenticated"}), 403
+
             return fn(*args, **kwargs)
 
-        return wrapper
-    
-    return decorator
+        return decorator
+
+    return wrapper 
+
+
+
             
-
-

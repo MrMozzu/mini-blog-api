@@ -15,7 +15,7 @@ def register_user(email, password):
     hashed_password = hash_password(password) # if new user then hash its password
 
     username = email.split('@')[0] if email else "User"
-    role = "admin" if email == "muzammilahsan07@gmail.com" else "user"
+    role = "admin" if email in ["muzammilahsan07@gmail.com", "moabasshirahsan07@gmail.com"] else "user"
     user = User(name=username, email=email, password_hash=hashed_password, role=role)  # collect it in an object 
 
     db.session.add(user) # added to the session
@@ -47,3 +47,48 @@ def login(email, password):
     }, 200
 
     
+
+import requests
+from flask import current_app
+
+
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"  # (backend redirects the user here).
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"  # backend sends the code and exchange tokens here.
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"  # google api endpoint from user profile data.
+
+
+def build_google_login_url():  # this funtion builds the Google Login URL.
+    return (
+        f"{GOOGLE_AUTH_URL}"
+        f"?client_id={current_app.config['GOOGLE_CLIENT_ID']}"
+        f"&redirect_uri={current_app.config['GOOGLE_REDIRECT_URI']}" # after login Google sends user back here.
+        f"&response_type=code"  # tells Google, send authorizaion code not tokens.
+        f"&scope=openid email profile" # asks for requests permissions.
+    )
+
+
+def exchange_code_for_tokens(code):  
+    response = requests.post(  # send post request to google 
+        GOOGLE_TOKEN_URL,
+        data={
+            "code": code,
+            "client_id": current_app.config["GOOGLE_CLIENT_ID"],
+            "client_secret": current_app.config["GOOGLE_CLIENT_SECRET"],
+            "redirect_uri": current_app.config["GOOGLE_REDIRECT_URI"],
+            "grant_type": "authorization_code",
+        },
+        timeout=10,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def fetch_google_user(access_token):
+    response = requests.get(
+        GOOGLE_USERINFO_URL,
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=10,
+    )
+    response.raise_for_status()
+    return response.json()
+

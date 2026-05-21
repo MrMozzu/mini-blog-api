@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.auth.utils import admin_required, permission_required
+from app.auth.utils import  permission_required
 
 from app.extensions import db, jwt
 from app.posts.models import Post
@@ -68,21 +68,24 @@ def update_post(post_id):
 # first check - Is this post owned by the logged-in user?
 
 @post_bp.delete("/posts/<int:post_id>")
-@permission_required("delete_own_post")
+@permission_required("delete_own_post", "delete_any_post")
 def delete_post(post_id):
 
     current_user_id  = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
     post = Post.query.get_or_404(post_id)
 
-    if post.user_id != current_user_id:
-         return jsonify({"error": "You cannot delete this post"}), 403 # 403 - logged in but now allowed
+    from app.auth.permissions import ROLE_PERMISSIONS
+    current_permissions = ROLE_PERMISSIONS.get(current_user.role, [])
+
+    if "delete_any_post" not in current_permissions and post.user_id != current_user_id:
+         return jsonify({"error": "You cannot delete this post"}), 403 # 403 - logged in but not allowed
 
     db.session.delete(post)
     db.session.commit()
 
     return jsonify({
-        "message": "Data deleted succesfully"
-    
+        "message": "Data deleted successfully"
     }), 200
 

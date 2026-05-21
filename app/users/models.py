@@ -13,6 +13,9 @@ class User(db.Model):
 
     password_hash = db.Column(db.Text, nullable=True)
 
+    auth_provider = db.Column(db.String, default="local")
+    google_id = db.Column(db.String, nullable=True, unique=True)
+
     post = db.relationship(
         "Post",
         backref="user",

@@ -2,7 +2,8 @@ from app.auth.utils import permission_required
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from app.auth.utils import admin_required
+from app.auth.utils import permission_required
+from app.auth.permissions import ROLE_PERMISSIONS
 from app.extensions import db
 from app.users.models import User
 from app.users.schemas import user_schema, users_schema
@@ -29,15 +30,33 @@ def get_user(user_id):
 
 
 
-@users_bp.delete("/<int:id>")
-@permission_required("delete_own_user", "delete_any_user")
+@users_bp.delete("/<int:id>")  # this only checks - is he deleting himself or does he has admin powers
+@permission_required("delete_any_user", "delete_own_user")
 def delete_user(id):
 
-    user = User.query.get_or_404(id)
-    db.session.delete(user)
-    db.session.commit()
+    current_user = User.query.get(get_jwt_identity()) # the user which is authicated from decorator
+    target_user = User.query.get_or_404(id)  # the user which we want to delete 
 
+
+    current_permission = ROLE_PERMISSIONS.get(current_user.role, [])
+
+    if "delete_any_user" in current_permission:
+        db.session.delete(target_user)
+        db.session.commit()
+
+    else:
+        if current_user.id != target_user.id:
+            return jsonify({"error": "You can only delete own account"}), 403
+
+    
+    
+        db.session.delete(target_user)
+        db.session.commit()
+
+    
     return jsonify({"message": "User deleted"}), 200
+
+
 
 # because i created this permission route so we don't need the jwt and admin_required routes 
 # they are previouly created by me but now i don't need them 
