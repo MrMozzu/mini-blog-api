@@ -28,11 +28,12 @@ def login_route():
 
 
 
+
+
 from flask import redirect, request, jsonify
 from flask_jwt_extended import create_access_token
 
 from app.extensions import db
-from app.users.models import User
 from app.auth.services import (
     build_google_login_url,
     exchange_code_for_tokens,
@@ -48,18 +49,18 @@ def google_login():
 
 @auth_bp.get("/google/callback")
 def google_callback():
-    code = request.args.get("code") # reads authorization code from the URL.
+    code = request.args.get("code")
 
     if not code:
         return jsonify({"error": "Authorization code missing"}), 400
 
-    tokens = exchange_code_for_tokens(code)  # sends code to the google
-    google_access_token = tokens.get("access_token") # extracts access token from google response 
+    tokens = exchange_code_for_tokens(code)
+    google_access_token = tokens.get("access_token")
 
     if not google_access_token:
         return jsonify({"error": "Google access token missing"}), 400
 
-    google_user = fetch_google_user(google_access_token) # user access token to fetch user profile 
+    google_user = fetch_google_user(google_access_token)
 
     google_id = google_user.get("id")
     email = google_user.get("email")
@@ -76,39 +77,27 @@ def google_callback():
         if user:
             user.google_id = google_id
             user.auth_provider = "google"
-            if email in ["muzammilahsan07@gmail.com", "moabasshirahsan07@gmail.com"]:
-                user.role = "admin"
         else:
-            role = "admin" if email in ["muzammilahsan07@gmail.com", "moabasshirahsan07@gmail.com"] else "user"
             user = User(
-                name=name,
+                username=name,
                 email=email,
                 google_id=google_id,
                 auth_provider="google",
-                role=role,
+                role="user",
             )
             db.session.add(user)
 
         db.session.commit()
 
-    mini_blog_token = create_access_token(identity=str(user.id))  # create JWT token for local database
+    mini_blog_token = create_access_token(identity=str(user.id))
 
-    return f"""
-    <html>
-        <body>
-            <script>
-                localStorage.setItem("access_token", "{mini_blog_token}");
-                localStorage.setItem("user", JSON.stringify({{
-                    "id": {user.id},
-                    "email": "{user.email}",
-                    "name": "{user.name}",
-                    "role": "{user.role}"
-                }}));
-                window.location.href = "/";
-            </script>
-            <p style="font-family: sans-serif; text-align: center; margin-top: 50px; color: #666;">
-                Redirecting you back to Chronicle...
-            </p>
-        </body>
-    </html>
-    """
+    return jsonify({
+        "message": "Google login successful",
+        "access_token": mini_blog_token,
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "role": user.role,
+        }
+    }), 200
