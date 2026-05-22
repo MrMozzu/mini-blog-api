@@ -79,7 +79,7 @@ def google_callback():
             user.auth_provider = "google"
         else:
             user = User(
-                username=name,
+                name=name,
                 email=email,
                 google_id=google_id,
                 auth_provider="google",
@@ -97,7 +97,7 @@ def google_callback():
         "user": {
             "id": user.id,
             "email": user.email,
-            "username": user.username,
+            "name": user.name,
             "role": user.role,
         }
     }), 200
