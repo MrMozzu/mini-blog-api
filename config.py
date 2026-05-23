@@ -17,10 +17,12 @@ class Config:
 
     PASSWORD_PEPPER = os.getenv("PASSWORD_PEPPER", "")
 
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "3654656354")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-change-me-mini-blog-jwt-secret-key-32")
 
     JWT_ACCESS_TOKEN_EXPIRES  = timedelta(minutes=15)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
+    JWT_COOKIE_SECURE = True
+    
 
 
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")

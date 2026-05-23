@@ -26,3 +26,18 @@ Content-Type: application/json
   "password": "74587458"
   
 }
+
+### google auth
+
+GET http://127.0.0.1:5000/auth/google/login
+Content-Type: application/json 
+
+###
+GET http://127.0.0.1:5000/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3OTQyNzM1MywianRpIjoiNWIwODEzZDgtMDg5Yy00OWY2LTlmODYtYjg2MGY2YjZmZTYyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3Nzk0MjczNTMsImNzcmYiOiI1YjFlNDc3My0yYzVjLTQzNmUtOGNhYi0zZTY2YmU2NjEwZDkiLCJleHAiOjE3Nzk0MjgyNTN9._eXV_HUzWC2TYry2N2hv0Syy3UK1eh27l2CTQ9h1OZ8
+
+
+###
+
+DELETE http://127.0.0.1:5000/users/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3OTQyOTM1NiwianRpIjoiNTFiNjI2MDgtODc4Ny00Y2EyLTk1YzAtOWJkNGY4NGY1YmVhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3Nzk0MjkzNTYsImNzcmYiOiIxNzRmYjE3NC05MDY4LTQ5NzktOWU2YS1mN2ZjMzIyMmQyNWEiLCJleHAiOjE3Nzk0MzAyNTYsInJvbGUiOiJ1c2VyIn0.TMXma_mg6r4GEk0PMio62Q0yaJo_CbcPeJLuIser_tw

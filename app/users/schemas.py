@@ -12,7 +12,9 @@ class UserSchema(ma.SQLAlchemySchema):
     name = ma.auto_field()
     email = ma.auto_field()
     role = ma.auto_field()
-    password_hash = ma.auto_field()
+    google_id = ma.auto_field()
+    auth_provider = ma.auto_field()
+    
 
 
 user_schema = UserSchema()

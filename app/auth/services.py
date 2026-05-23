@@ -5,6 +5,8 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 
 
 def register_user(email, password):
+    if not email or not password:
+        return {"error": "Email and password are required"}, 400
 
     existing_user = User.query.filter_by(email=email).first() # checks if email already exists
 
@@ -15,7 +17,8 @@ def register_user(email, password):
     hashed_password = hash_password(password) # if new user then hash its password
 
     username = email.split('@')[0] if email else "User"
-    role = "admin" if email == "muzammilahsan07@gmail.com" else "user"
+    admin_emails = ["muzammilahsan07@gmail.com"]
+    role = "admin" if email in admin_emails else "user"
     user = User(name=username, email=email, password_hash=hashed_password, role=role)  # collect it in an object 
 
     db.session.add(user) # added to the session
@@ -26,6 +29,8 @@ def register_user(email, password):
 
 
 def login(email, password):
+    if not email or not password:
+        return {"error": "Email and password are required"}, 400
 
     user = User.query.filter_by(email=email).first()
 
@@ -43,7 +48,13 @@ def login(email, password):
     
     return {"message": "Login Succsessful",
             "access_token": access_token,
-            "refresh_token": refresh_token
+            "refresh_token": refresh_token,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "role": user.role,
+            },
     }, 200
 
     
@@ -92,3 +103,34 @@ def fetch_google_user(access_token):
     response.raise_for_status()
     return response.json()
 
+import secrets
+
+def generate_oauth_state():
+    return secrets.token_urlsafe(32)
+
+    
+
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
+def verify_google_id(token):
+
+    idinfo = id_token.verify_oauth2_token(
+        token,
+        requests.Request(),
+        GOOGLE_CLIENT_ID
+
+    )
+
+    if idinfo["iss"] not in [
+        "accounts.google.com",
+        "https://accounts.google.com"
+    ]:
+
+        raise Exception
+
+    if not idinfo.get("email verified"):
+        raise Exception("Email not verified")
+
+    
+    return idinfo

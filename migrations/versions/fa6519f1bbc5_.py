@@ -20,6 +20,8 @@ def upgrade():
     with op.batch_alter_table("users") as batch_op:
         batch_op.add_column(sa.Column("google_id", sa.String(length=255), nullable=True))
         batch_op.add_column(sa.Column("auth_provider", sa.String(length=50), nullable=True))
+
+    with op.batch_alter_table("users") as batch_op:
         batch_op.create_unique_constraint("uq_users_google_id", ["google_id"])
 
 

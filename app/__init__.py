@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
-from app.extensions import db, migrate, ma, jwt
+from app.extensions import db, migrate, ma, jwt, limiter
 
 def create_app():
     load_dotenv()
@@ -16,6 +16,7 @@ def create_app():
     migrate.init_app(app, db)
     ma.init_app(app)
     jwt.init_app(app)
+    limiter.init_app(app)
    
 
     from app.users.models import User
@@ -28,7 +29,9 @@ def create_app():
     from app.users.routes import users_bp
     from app.posts.routes import post_bp
     from app.auth.routes import auth_bp
+   
     
+
 
     app.register_blueprint(users_bp)
     app.register_blueprint(post_bp)

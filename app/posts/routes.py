@@ -20,9 +20,9 @@ def get_all_posts():
 @permission_required("create_post")  # verifies that the endpoint cannot be acces without a token and is valid token compares with the token that is sent to the client at the time of login 
 def create_post():
 
-    current_user_id = get_jwt_identity()  # extracts the identity like id or username from the token
+    current_user_id = int(get_jwt_identity())  # extracts the identity like id or username from the token
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
     post = post_schema.load(data)
 
@@ -48,14 +48,14 @@ def get_post(user_id):
 @permission_required("edit_own_post")
 def update_post(post_id):
 
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
 
     post = Post.query.get_or_404(post_id)
 
     if post.user_id != current_user_id:
          return jsonify({"error": "You cannot edit this post"}), 403 # 403 - logged in but now allowed
 
-    data = request.get_json()
+    data = request.get_json() or {}
 
     post.title = data.get("title", post.title)
     post.content = data.get("content", post.content)
@@ -71,7 +71,7 @@ def update_post(post_id):
 @permission_required("delete_own_post", "delete_any_post")
 def delete_post(post_id):
 
-    current_user_id  = get_jwt_identity()
+    current_user_id  = int(get_jwt_identity())
     current_user = User.query.get(current_user_id)
 
     post = Post.query.get_or_404(post_id)
