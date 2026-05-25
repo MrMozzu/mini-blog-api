@@ -18,7 +18,7 @@ class User(db.Model):
 
     google_id = db.Column(db.String, nullable=True, unique=True)
 
-    failed_attempts = db.Colum(db.Integer, default=0)
+    failed_attempts = db.Column(db.Integer, default=0)
 
     locked_until = db.Column(db.DateTime, nullable=False)
 
