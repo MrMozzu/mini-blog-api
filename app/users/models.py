@@ -1,5 +1,6 @@
 from app.extensions import db
 
+
 class User(db.Model):
     __tablename__ = "users"
 
@@ -14,7 +15,12 @@ class User(db.Model):
     password_hash = db.Column(db.Text, nullable=True)
 
     auth_provider = db.Column(db.String, default="local")
+
     google_id = db.Column(db.String, nullable=True, unique=True)
+
+    failed_attempts = db.Colum(db.Integer, default=0)
+
+    locked_until = db.Column(db.DateTime, nullable=False)
 
     post = db.relationship(
         "Post",

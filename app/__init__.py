@@ -7,8 +7,19 @@ def create_app():
     load_dotenv()
 
     app = Flask(__name__)
-    CORS(app)
-    
+    CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": [
+                "http://localhost:3000"
+            ]
+        }
+    },
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "PUT", "DELETE"]
+)
+    # this allows read cookies, JWT, session authentication to the local host
    
     app.config.from_object("config.Config")
 

@@ -2,6 +2,7 @@ from app.auth.utils import hash_password, verify_password
 from app.users.models import User
 from app.extensions import db
 from flask_jwt_extended import create_access_token, create_refresh_token
+from werkzeug  import check_password_hash
 
 
 def register_user(email, password):
@@ -27,6 +28,7 @@ def register_user(email, password):
     return {"message": "User created"}, 201
 
 
+from datetime import datetime, timedelta
 
 def login(email, password):
     if not email or not password:
@@ -37,10 +39,23 @@ def login(email, password):
     if not user:
         return {"error": "email is not registered"}, 401
 
-    is_valid = verify_password(password, user.password_hash)
+    if user.locked_until and user.locked_until > datetime.utcnow():
+        return {"error": "Account locked"}, 403
+    
+    if not check_password_hash(user.password, password): # checks the current hashed password with the hash stored in db
 
-    if not is_valid:
+        user.failed_attempts += 1
+    
+        if user.failed_attempts >= 5:
+            user.locked_until = datetime.utcnow() + timedelta(minutes=15)
+        db.session.commit()
+
         return {"error": "Invalid password"}, 401
+
+    user.failed_attempts = 0
+    user.locked_until = 0
+    db.session.commit()
+
 
     access_token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})  # used to authenticate the user
     refresh_token = create_refresh_token(identity=str(user.id))  # used to get new access token when it is expiered
@@ -68,13 +83,14 @@ GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"  # backend sends the co
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"  # google api endpoint from user profile data.
 
 
-def build_google_login_url():  # this funtion builds the Google Login URL.
+def build_google_login_url(state):  # this funtion builds the Google Login URL.
     return (
         f"{GOOGLE_AUTH_URL}"
         f"?client_id={current_app.config['GOOGLE_CLIENT_ID']}"
         f"&redirect_uri={current_app.config['GOOGLE_REDIRECT_URI']}" # after login Google sends user back here.
         f"&response_type=code"  # tells Google, send authorizaion code not tokens.
         f"&scope=openid email profile" # asks for requests permissions.
+        f"&state={state}"
     )
 
 
@@ -118,7 +134,7 @@ def verify_google_id(token):
     idinfo = id_token.verify_oauth2_token(
         token,
         requests.Request(),
-        GOOGLE_CLIENT_ID
+        current_app.config["GOOGLE_CLIENT_ID"]
 
     )
 
@@ -127,9 +143,9 @@ def verify_google_id(token):
         "https://accounts.google.com"
     ]:
 
-        raise Exception
+        raise Exception("Invalid issuer")
 
-    if not idinfo.get("email verified"):
+    if not idinfo.get("email_verified"):
         raise Exception("Email not verified")
 
     

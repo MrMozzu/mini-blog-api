@@ -50,7 +50,8 @@ from app.auth.services import (
     build_google_login_url,
     exchange_code_for_tokens,
     fetch_google_user,
-    generate_oauth_state
+    generate_oauth_state,
+    verify_google_id
 )
 from app.users.models import User
 
@@ -71,7 +72,7 @@ def me():
 @auth_bp.get("/google/login")
 def google_login():
 
-    state = google_oauth_state()  # generate state
+    state = generate_oauth_state()  # generate state
 
     session["oauth_state"] = state # save state 
 
