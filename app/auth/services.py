@@ -2,7 +2,7 @@ from app.auth.utils import hash_password, verify_password
 from app.users.models import User
 from app.extensions import db
 from flask_jwt_extended import create_access_token, create_refresh_token
-from Werkzeug  import check_password_hash
+from werkzeug.security  import check_password_hash
 
 
 def register_user(email, password):
