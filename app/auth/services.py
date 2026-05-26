@@ -106,7 +106,10 @@ def exchange_code_for_tokens(code):
         },
         timeout=10,
     )
-    response.raise_for_status()
+    
+    if not response.ok:
+        raise Exception(f"Google Token Error: {response.text}")
+        
     return response.json()
 
 

@@ -99,7 +99,11 @@ def google_callback():
     if not code:
         return jsonify({"error": "Authorization code missing"}), 400
 
-    tokens = exchange_code_for_tokens(code)
+    try:
+        tokens = exchange_code_for_tokens(code)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+        
     google_id_token = tokens.get("id_token")
     google_access_token = tokens.get("access_token")
     
