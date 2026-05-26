@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from app.auth.services import register_user, login as login_service
+from app.auth.services import register_user, login as login_service, forgot_password_service, reset_password_service
 from app.extensions import limiter
 
 
@@ -22,7 +22,7 @@ def email_key():
     data = request.get_json(silent=True) or {} #silent=True prevents the crash if json in invalid
     email = data.get("email", "").lower().strip()
 
-    ip = request.remote_add # gets clients IP
+    ip = request.remote_addr # gets clients IP
 
     return f"{ip}:{email}" # build a unique key 
 
@@ -75,17 +75,8 @@ def google_login():
     state = generate_oauth_state()  # generate state
 
     session["oauth_state"] = state # save state 
-
-    google_url = (
-        "https://accounts.google.com/o/oauth2/v2/auth"
-        f"?client_id={GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={REDIRECT_URI}"
-        f"&response_type=code"
-        f"&scope=openid email profile"
-        f"&state={state}"
-    )
     
-    redirect(build_google_login_url())
+    return redirect(build_google_login_url(state))
 
 
 @auth_bp.get("/google/callback")
@@ -110,6 +101,7 @@ def google_callback():
 
     tokens = exchange_code_for_tokens(code)
     google_id_token = tokens.get("id_token")
+    google_access_token = tokens.get("access_token")
     
 
     if not google_access_token:
@@ -151,13 +143,28 @@ def google_callback():
 
     mini_blog_token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
 
-    return jsonify({
-        "message": "Google login successful",
-        "access_token": mini_blog_token,
-        "user": {
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
-            "role": user.role,
-        }
-    }), 200
+    import urllib.parse
+    import json
+    
+    user_data = json.dumps({
+        "id": user.id,
+        "email": user.email,
+        "name": user.name,
+        "role": user.role,
+    })
+    
+    redirect_url = f"/?access_token={mini_blog_token}&user={urllib.parse.quote(user_data)}#home"
+    return redirect(redirect_url)
+
+
+
+@auth_bp.post("/forgot_password")
+def forgot_password():
+    return forgot_password_service(request.json)
+
+
+@auth_bp.post('/reset-password')
+def reset_password():
+    return reset_password_service(request.json)
+
+    

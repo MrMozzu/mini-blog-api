@@ -17,6 +17,8 @@ class Config:
 
     PASSWORD_PEPPER = os.getenv("PASSWORD_PEPPER", "")
 
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-change-me-mini-blog-secret-key-32")
+
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-change-me-mini-blog-jwt-secret-key-32")
 
     JWT_ACCESS_TOKEN_EXPIRES  = timedelta(minutes=15)

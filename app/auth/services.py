@@ -42,7 +42,7 @@ def login(email, password):
     if user.locked_until and user.locked_until > datetime.utcnow():
         return {"error": "Account locked"}, 403
     
-    if not check_password_hash(user.password, password): # checks the current hashed password with the hash stored in db
+    if not verify_password(password, user.password_hash): # checks the current hashed password with the hash stored in db
 
         user.failed_attempts += 1
     
@@ -53,7 +53,7 @@ def login(email, password):
         return {"error": "Invalid password"}, 401
 
     user.failed_attempts = 0
-    user.locked_until = 0
+    user.locked_until = None
     db.session.commit()
 
 
@@ -127,13 +127,13 @@ def generate_oauth_state():
     
 
 from google.oauth2 import id_token
-from google.auth.transport import requests
+from google.auth.transport import requests as google_requests
 
 def verify_google_id(token):
 
     idinfo = id_token.verify_oauth2_token(
         token,
-        requests.Request(),
+        google_requests.Request(),
         current_app.config["GOOGLE_CLIENT_ID"]
 
     )
@@ -150,3 +150,100 @@ def verify_google_id(token):
 
     
     return idinfo
+
+
+from app.auth.models import PasswordResetOTP
+from app.auth.utils import (
+    generate_reset_token,
+    hash_token
+)
+
+from werkzeug.security import generate_password_hash
+
+def forgot_password_service(data):
+
+    email = data.get("email")
+    user = User.query.filter_by(email=email).first()
+
+    # always return the same response
+
+    if not user:
+        return {
+        "message": "if account exists, reset email sent"}, 200
+
+    # generate raw token
+    raw_token = generate_reset_token()
+
+    #Hash token
+    hashed_token = hash_token(raw_token)
+
+    #expiration time
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
+
+    # stored hash token
+    reset_record = PasswordResetOTP(
+        user_id=user.id,
+        token_hash=hashed_token,
+        expires_at=expires_at
+    )
+
+    db.session.add(reset_record)
+    db.session.commit()
+    
+    # send raw token by email 
+    reset_link = (
+        f"http://localhost:3000/reset-password"
+        f"?token={raw_token}"
+    )
+    print("RESET LINK:", reset_link)
+
+    return {
+        "message": "if account exists, reset email sent"
+        }, 200
+
+def reset_password_service(data):
+    
+    raw_token = data.get("token")
+    new_password = data.get("new_password")
+
+    if not raw_token or not new_password:
+        return {
+            "error": "Missing fields"
+        }, 400
+
+    hashed_token = hash_token(raw_token)
+
+    reset_record = PasswordResetOTP.query.filter_by(
+        token_hash=hashed_token,
+        used=False
+    ).first()
+
+    if not reset_record:
+        return {
+            "error": "Invalid token"
+        }, 400
+
+    # check if expiration
+    if reset_record.expires_at < datetime.utcnow():
+        return {
+            "error": "Token expired"
+        }, 400
+
+    user = User.query.get(reset_record.user_id)
+
+    if not user:
+        return {
+            "error": "User not found"
+        }, 404
+
+    # update password
+    user.password_hash = generate_password_hash(new_password)
+
+    # Mark token used
+    reset_record.used = True
+
+    db.session.commit()
+
+    return {
+        "message": "Password reset successful"
+    }, 200

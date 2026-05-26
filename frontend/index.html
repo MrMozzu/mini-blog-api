@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="InkStack — A modern publishing platform. Create, share, and discover stories.">
+    <title>InkStack — Modern Publishing Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo">
+                <img src="img/logo.png" alt="InkStack Logo" class="nav-logo-img">
+                <span class="logo-text">Ink<span class="logo-accent">Stack</span></span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="#home" class="nav-link active" data-page="home">
+                    <span class="nav-icon"></span> Home
+                </a>
+                <a href="#create-post" class="nav-link auth-only" data-page="create-post">
+                    <span class="nav-icon"></span> Write
+                </a>
+                <a href="#my-posts" class="nav-link auth-only" data-page="my-posts">
+                    <span class="nav-icon"></span> My Posts
+                </a>
+                <a href="#admin" class="nav-link admin-only" data-page="admin">
+                    <span class="nav-icon"></span> Admin
+                </a>
+                <a href="#profile" class="nav-link auth-only" data-page="profile">
+                    <span class="nav-icon"></span> Profile
+                </a>
+                <a href="#login" class="nav-link guest-only" data-page="login">
+                    <span class="nav-icon"></span> Login
+                </a>
+                <a href="#register" class="nav-link guest-only" data-page="register">
+                    <span class="nav-icon"></span> Register
+                </a>
+                <button class="nav-btn-logout auth-only" id="logoutBtn">
+                    Logout
+                </button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+        <!-- Toast notifications container -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- ===== HOME PAGE ===== -->
+        <section class="page" id="page-home">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <span class="title-gradient">Discover Stories</span>
+                </h1>
+                <p class="page-subtitle">Explore thoughts, ideas, and stories from our community</p>
+            </div>
+            <div class="posts-grid" id="postsGrid">
+                <!-- Posts rendered here by JS -->
+            </div>
+            <div class="empty-state" id="emptyPosts" style="display:none;">
+                <div class="empty-icon"></div>
+                <h3>No posts yet</h3>
+                <p>Be the first to share your thoughts!</p>
+                <a href="#create-post" class="btn btn-primary auth-only">Write a Post</a>
+            </div>
+        </section>
+
+        <!-- ===== LOGIN PAGE ===== -->
+        <section class="page" id="page-login" style="display:none;">
+            <div class="auth-container">
+                <div class="auth-card glass-card">
+                    <div class="auth-header">
+                        <h1 class="auth-title">Welcome Back</h1>
+                        <p class="auth-subtitle">Sign in to continue your journey</p>
+                    </div>
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="loginEmail" class="form-label">Email</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="loginSubmitBtn">
+                            <span class="btn-text">Sign In</span>
+                            <span class="btn-loader" style="display:none;"></span>
+                        </button>
+                    </form>
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+                    <button class="btn btn-google btn-full" id="googleLoginBtn">
+                        <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Continue with Google
+                    </button>
+                    <div class="auth-footer">
+                        <a href="#forgot-password" class="auth-link">Forgot password?</a>
+                        <span class="auth-separator">•</span>
+                        <a href="#register" class="auth-link">Create account</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== REGISTER PAGE ===== -->
+        <section class="page" id="page-register" style="display:none;">
+            <div class="auth-container">
+                <div class="auth-card glass-card">
+                    <div class="auth-header">
+                        <h1 class="auth-title">Create Account</h1>
+                        <p class="auth-subtitle">Join the community and start writing</p>
+                    </div>
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="email" id="registerEmail" class="form-input" placeholder="you@example.com" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="password" id="registerPassword" class="form-input" placeholder="Min 6 characters" required minlength="6">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerConfirm" class="form-label">Confirm Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="password" id="registerConfirm" class="form-input" placeholder="Repeat password" required minlength="6">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="registerSubmitBtn">
+                            <span class="btn-text">Create Account</span>
+                            <span class="btn-loader" style="display:none;"></span>
+                        </button>
+                    </form>
+                    <div class="auth-footer">
+                        <span>Already have an account?</span>
+                        <a href="#login" class="auth-link">Sign In</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FORGOT PASSWORD ===== -->
+        <section class="page" id="page-forgot-password" style="display:none;">
+            <div class="auth-container">
+                <div class="auth-card glass-card">
+                    <div class="auth-header">
+                        <h1 class="auth-title">Reset Password</h1>
+                        <p class="auth-subtitle">Enter your email and we'll send you a reset link</p>
+                    </div>
+                    <form id="forgotForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="forgotEmail" class="form-label">Email</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="email" id="forgotEmail" class="form-input" placeholder="you@example.com" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="forgotSubmitBtn">
+                            <span class="btn-text">Send Reset Link</span>
+                            <span class="btn-loader" style="display:none;"></span>
+                        </button>
+                    </form>
+                    <div class="auth-footer">
+                        <a href="#login" class="auth-link">← Back to Login</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== RESET PASSWORD ===== -->
+        <section class="page" id="page-reset-password" style="display:none;">
+            <div class="auth-container">
+                <div class="auth-card glass-card">
+                    <div class="auth-header">
+                        <h1 class="auth-title">New Password</h1>
+                        <p class="auth-subtitle">Enter your new password below</p>
+                    </div>
+                    <form id="resetForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="resetPassword" class="form-label">New Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="password" id="resetPassword" class="form-input" placeholder="Min 6 characters" required minlength="6">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="resetConfirm" class="form-label">Confirm Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="password" id="resetConfirm" class="form-input" placeholder="Repeat password" required minlength="6">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="resetSubmitBtn">
+                            <span class="btn-text">Reset Password</span>
+                            <span class="btn-loader" style="display:none;"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CREATE POST ===== -->
+        <section class="page" id="page-create-post" style="display:none;">
+            <div class="editor-container">
+                <div class="editor-card glass-card">
+                    <div class="auth-header">
+                        <h1 class="auth-title">Write a Post</h1>
+                        <p class="auth-subtitle">Share your thoughts with the world</p>
+                    </div>
+                    <form id="createPostForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="postTitle" class="form-label">Title</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="text" id="postTitle" class="form-input" placeholder="An amazing title..." required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="postContent" class="form-label">Content</label>
+                            <textarea id="postContent" class="form-textarea" placeholder="Write your story..." rows="10" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="createPostBtn">
+                            <span class="btn-text">Publish Post</span>
+                            <span class="btn-loader" style="display:none;"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== EDIT POST ===== -->
+        <section class="page" id="page-edit-post" style="display:none;">
+            <div class="editor-container">
+                <div class="editor-card glass-card">
+                    <div class="auth-header">
+                        <h1 class="auth-title">Edit Post</h1>
+                        <p class="auth-subtitle">Update your story</p>
+                    </div>
+                    <form id="editPostForm" class="auth-form">
+                        <input type="hidden" id="editPostId">
+                        <div class="form-group">
+                            <label for="editPostTitle" class="form-label">Title</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"></span>
+                                <input type="text" id="editPostTitle" class="form-input" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPostContent" class="form-label">Content</label>
+                            <textarea id="editPostContent" class="form-textarea" rows="10" required></textarea>
+                        </div>
+                        <div class="btn-row">
+                            <button type="submit" class="btn btn-primary" id="editPostBtn">
+                                <span class="btn-text">Save Changes</span>
+                                <span class="btn-loader" style="display:none;"></span>
+                            </button>
+                            <button type="button" class="btn btn-outline" onclick="window.location.hash='#my-posts'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== MY POSTS ===== -->
+        <section class="page" id="page-my-posts" style="display:none;">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <span class="title-gradient">My Posts</span>
+                </h1>
+                <p class="page-subtitle">Manage your published stories</p>
+            </div>
+            <div class="posts-grid" id="myPostsGrid">
+                <!-- My posts rendered here -->
+            </div>
+            <div class="empty-state" id="emptyMyPosts" style="display:none;">
+                <div class="empty-icon"></div>
+                <h3>You haven't written anything yet</h3>
+                <p>Start your journey as a writer!</p>
+                <a href="#create-post" class="btn btn-primary">Write Your First Post</a>
+            </div>
+        </section>
+
+        <!-- ===== PROFILE ===== -->
+        <section class="page" id="page-profile" style="display:none;">
+            <div class="profile-container">
+                <div class="profile-card glass-card">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <span class="avatar-letter" id="avatarLetter">?</span>
+                    </div>
+                    <h2 class="profile-name" id="profileName">—</h2>
+                    <p class="profile-email" id="profileEmail">—</p>
+                    <div class="profile-badge" id="profileBadge">user</div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="profilePostCount">0</span>
+                            <span class="stat-label">Posts</span>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ADMIN PANEL ===== -->
+        <section class="page" id="page-admin" style="display:none;">
+            <div class="admin-container">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <span class="title-gradient">Admin Panel</span>
+                    </h1>
+                    <p class="page-subtitle">Manage users and content</p>
+                </div>
+
+                <div class="admin-stats" id="adminStats">
+                    <div class="stat-card glass-card">
+                        <div class="stat-card-icon"></div>
+                        <div class="stat-card-value" id="statTotalUsers">0</div>
+                        <div class="stat-card-label">Total Users</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-card-icon"></div>
+                        <div class="stat-card-value" id="statTotalPosts">0</div>
+                        <div class="stat-card-label">Total Posts</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-card-icon"></div>
+                        <div class="stat-card-value" id="statAdminCount">0</div>
+                        <div class="stat-card-label">Admins</div>
+                    </div>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-tab="users-tab" id="usersTabBtn">Users</button>
+                    <button class="tab-btn" data-tab="posts-tab" id="postsTabBtn">Posts</button>
+                </div>
+
+                <div class="tab-content active" id="users-tab">
+                    <div class="admin-table-wrap glass-card">
+                        <table class="admin-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Provider</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="posts-tab" style="display:none;">
+                    <div class="admin-table-wrap glass-card">
+                        <table class="admin-table" id="adminPostsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminPostsTableBody">
+                                <!-- Posts rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== CONFIRM MODAL ========== -->
+    <div class="modal-overlay" id="confirmModal" style="display:none;">
+        <div class="modal-card glass-card">
+            <h3 class="modal-title" id="modalTitle">Are you sure?</h3>
+            <p class="modal-message" id="modalMessage">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+                <button class="btn btn-danger" id="modalConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-logo">✦ InkStack</span>
+                <p class="footer-text">Built with Flask & ❤️<br>A modern publishing platform.</p>
+            </div>
+            <div class="footer-feedback">
+                <h4 class="footer-heading">Send Feedback</h4>
+                <form id="feedbackForm" class="feedback-form">
+                    <div class="form-group-row">
+                        <input type="text" id="fbName" class="form-input form-input-sm" placeholder="Name (Optional)">
+                        <input type="email" id="fbEmail" class="form-input form-input-sm" placeholder="Email (Optional)">
+                    </div>
+                    <textarea id="fbMessage" class="form-textarea form-textarea-sm" placeholder="Your thoughts..." required></textarea>
+                    <button type="submit" class="btn btn-primary btn-sm" id="feedbackSubmitBtn">
+                        <span class="btn-text">Submit Feedback</span>
+                        <span class="btn-loader" style="display:none;"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/posts.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

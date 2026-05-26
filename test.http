@@ -39,5 +39,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsI
 
 ###
 
-DELETE http://127.0.0.1:5000/users/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3OTQyOTM1NiwianRpIjoiNTFiNjI2MDgtODc4Ny00Y2EyLTk1YzAtOWJkNGY4NGY1YmVhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3Nzk0MjkzNTYsImNzcmYiOiIxNzRmYjE3NC05MDY4LTQ5NzktOWU2YS1mN2ZjMzIyMmQyNWEiLCJleHAiOjE3Nzk0MzAyNTYsInJvbGUiOiJ1c2VyIn0.TMXma_mg6r4GEk0PMio62Q0yaJo_CbcPeJLuIser_tw
+POST http://127.0.0.1:5000/auth/forget_password
+Content-Type : application/json

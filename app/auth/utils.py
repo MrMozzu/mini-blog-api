@@ -72,5 +72,13 @@ def permission_required(*required_permission):
     return wrapper 
 
 
+import secrets
+import hashlib
 
-            
+def generate_reset_token():
+    return secrets.token_hex(32)
+
+def hash_token(token):
+    return hashlib.sha256(token.encode()).hexdigest()
+
+

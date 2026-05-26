@@ -20,7 +20,7 @@ class User(db.Model):
 
     failed_attempts = db.Column(db.Integer, default=0)
 
-    locked_until = db.Column(db.DateTime, nullable=False)
+    locked_until = db.Column(db.DateTime, nullable=True)
 
     post = db.relationship(
         "Post",
