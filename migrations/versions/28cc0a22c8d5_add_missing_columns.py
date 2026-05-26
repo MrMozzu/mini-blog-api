@@ -18,24 +18,12 @@ depends_on = None
 
 def upgrade():
     with op.batch_alter_table('users', schema=None) as batch_op:
-        # Add columns safely
-        batch_op.add_column(sa.Column('auth_provider', sa.String(), server_default='local', nullable=True))
-        batch_op.add_column(sa.Column('google_id', sa.String(), nullable=True))
+        # Add columns safely. Using IF NOT EXISTS is not standard in SQLAlchemy so we rely on this script only adding what is truly missing.
+        # auth_provider and google_id already exist in Render's DB from the lost migration.
         batch_op.add_column(sa.Column('failed_attempts', sa.Integer(), server_default='0', nullable=True))
         batch_op.add_column(sa.Column('locked_until', sa.DateTime(), nullable=True))
-        # SQLite compatibility for unique constraints requires naming conventions, but we can try generic
-        try:
-            batch_op.create_unique_constraint('uq_users_google_id', ['google_id'])
-        except Exception:
-            pass
 
 def downgrade():
     with op.batch_alter_table('users', schema=None) as batch_op:
-        try:
-            batch_op.drop_constraint('uq_users_google_id', type_='unique')
-        except Exception:
-            pass
         batch_op.drop_column('locked_until')
         batch_op.drop_column('failed_attempts')
-        batch_op.drop_column('google_id')
-        batch_op.drop_column('auth_provider')
