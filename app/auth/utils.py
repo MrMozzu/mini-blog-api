@@ -76,9 +76,41 @@ import secrets
 import hashlib
 
 def generate_reset_token():
-    return secrets.token_hex(32)
+    # Returns a 6-digit OTP
+    return "".join(secrets.choice("0123456789") for _ in range(6))
 
 def hash_token(token):
     return hashlib.sha256(token.encode()).hexdigest()
 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
+def send_otp_email(to_email, otp):
+    smtp_server = current_app.config.get("SMTP_SERVER")
+    smtp_port = current_app.config.get("SMTP_PORT")
+    smtp_username = current_app.config.get("SMTP_USERNAME")
+    smtp_password = current_app.config.get("SMTP_PASSWORD")
+    sender_email = current_app.config.get("SENDER_EMAIL")
+
+    if not smtp_username or not smtp_password:
+        print(f"SMTP not configured. Would have sent OTP {otp} to {to_email}")
+        return
+
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = to_email
+    msg['Subject'] = "Your Password Reset OTP"
+
+    body = f"Your password reset OTP is: {otp}\nIt is valid for 15 minutes."
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        print(f"OTP successfully sent to {to_email}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")

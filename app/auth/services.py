@@ -158,10 +158,10 @@ def verify_google_id(token):
 from app.auth.models import PasswordResetOTP
 from app.auth.utils import (
     generate_reset_token,
-    hash_token
+    hash_token,
+    send_otp_email,
+    hash_password
 )
-
-from werkzeug.security import generate_password_hash
 
 def forgot_password_service(data):
 
@@ -186,6 +186,7 @@ def forgot_password_service(data):
     # stored hash token
     reset_record = PasswordResetOTP(
         user_id=user.id,
+        email=email,
         token_hash=hashed_token,
         expires_at=expires_at
     )
@@ -193,12 +194,8 @@ def forgot_password_service(data):
     db.session.add(reset_record)
     db.session.commit()
     
-    # send raw token by email 
-    reset_link = (
-        f"http://localhost:3000/reset-password"
-        f"?token={raw_token}"
-    )
-    print("RESET LINK:", reset_link)
+    # send OTP by email 
+    send_otp_email(email, raw_token)
 
     return {
         "message": "if account exists, reset email sent"
@@ -206,17 +203,20 @@ def forgot_password_service(data):
 
 def reset_password_service(data):
     
-    raw_token = data.get("token")
+    raw_token = data.get("otp") or data.get("token")
+    email = data.get("email")
     new_password = data.get("new_password")
 
-    if not raw_token or not new_password:
+    if not raw_token or not email or not new_password:
         return {
-            "error": "Missing fields"
+            "error": "Missing fields (email, otp, new_password required)"
         }, 400
 
+    raw_token = str(raw_token).strip()
     hashed_token = hash_token(raw_token)
 
     reset_record = PasswordResetOTP.query.filter_by(
+        email=email,
         token_hash=hashed_token,
         used=False
     ).first()
@@ -240,7 +240,7 @@ def reset_password_service(data):
         }, 404
 
     # update password
-    user.password_hash = generate_password_hash(new_password)
+    user.password_hash = hash_password(new_password)
 
     # Mark token used
     reset_record.used = True
