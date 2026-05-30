@@ -5,7 +5,7 @@
 /* ---- Page routing ---- */
 const PAGES = [
     'home', 'login', 'register', 'forgot-password', 'reset-password',
-    'verify-email', 'create-post', 'edit-post', 'my-posts', 'profile', 'admin'
+    'verify-email', 'create-post', 'edit-post', 'my-posts', 'profile', 'admin', 'view-post'
 ];
 
 function navigateTo(page) {
@@ -41,6 +41,15 @@ function navigateTo(page) {
     switch (pageName) {
         case 'home':
             loadAllPosts();
+            break;
+        case 'view-post':
+            const queryParams = new URLSearchParams(page.includes('?') ? page.split('?')[1] : '');
+            const postId = queryParams.get('id');
+            if (postId) {
+                loadFullPost(postId);
+            } else {
+                window.location.hash = '#home';
+            }
             break;
         case 'my-posts':
             if (!isLoggedIn()) { window.location.hash = '#login'; return; }

@@ -54,6 +54,9 @@ const api = {
     getPosts() {
         return this._request('GET', '/posts');
     },
+    getPost(id) {
+        return this._request('GET', `/posts/${id}`);
+    },
     getUserPosts(userId) {
         return this._request('GET', `/users/${userId}/posts`);
     },

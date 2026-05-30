@@ -14,7 +14,10 @@ post_bp = Blueprint("posts", __name__)
 def get_all_posts():
     posts = Post.query.all()
     return jsonify(posts_schema.dump(posts)), 200
-    
+@post_bp.get("/posts/<int:post_id>")
+def get_single_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return jsonify(post_schema.dump(post)), 200
 
 @post_bp.post("/posts")
 @permission_required("create_post")  # verifies that the endpoint cannot be acces without a token and is valid token compares with the token that is sent to the client at the time of login 

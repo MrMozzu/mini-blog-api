@@ -55,7 +55,6 @@ async function loadMyPosts() {
 
 function postCardHTML(post, isOwner) {
     const authorName = post.user ? post.user.name : 'Unknown';
-    const authorEmail = post.user ? post.user.email : '';
     const initial = authorName.charAt(0).toUpperCase();
     const currentUser = getUser();
     const canEdit = currentUser && post.user_id === currentUser.id;
@@ -63,27 +62,30 @@ function postCardHTML(post, isOwner) {
 
     let actions = '';
     if (canEdit || canDelete) {
-        actions = `<div class="post-actions">`;
+        actions = `<div class="post-actions" style="border-top:none; padding-top:0;">`;
         if (canEdit) {
-            actions += `<button class="post-action-btn" onclick="editPost(${post.id}, '${escapeAttr(post.title)}', \`${escapeTemplate(post.content)}\`)">Edit</button>`;
+            actions += `<button class="post-action-btn" onclick="event.stopPropagation(); editPost(${post.id}, '${escapeAttr(post.title)}', \`${escapeTemplate(post.content)}\`)">Edit</button>`;
         }
         if (canDelete) {
-            actions += `<button class="post-action-btn danger" onclick="confirmDeletePost(${post.id})">Delete</button>`;
+            actions += `<button class="post-action-btn danger" onclick="event.stopPropagation(); confirmDeletePost(${post.id})">Delete</button>`;
         }
         actions += `</div>`;
     }
 
     return `
-        <article class="post-card glass-card">
+        <article class="post-card glass-card" style="display:flex; flex-direction:column;">
             <div class="post-card-header">
                 <div class="post-author-avatar">${escapeHTML(initial)}</div>
                 <div class="post-author-info">
                     <div class="post-author-name">${escapeHTML(authorName)}</div>
                 </div>
             </div>
-            <h2 class="post-title">${escapeHTML(post.title)}</h2>
+            <h2 class="post-title"><a href="#view-post?id=${post.id}" style="color:inherit; text-decoration:none;">${escapeHTML(post.title)}</a></h2>
             <p class="post-content-preview">${escapeHTML(post.content)}</p>
-            ${actions}
+            <div class="post-card-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:14px; border-top:1px solid var(--glass-border);">
+                <a href="#view-post?id=${post.id}" class="read-more-link" style="color:var(--accent-light); font-size:0.85rem; font-weight:600; transition:color 0.2s;">Read Story →</a>
+                ${actions}
+            </div>
         </article>
     `;
 }
@@ -195,3 +197,47 @@ function escapeAttr(str) {
 function escapeTemplate(str) {
     return (str || '').replace(/`/g, '\\`').replace(/\$/g, '\\$');
 }
+
+async function loadFullPost(postId) {
+    const card = document.getElementById('postDetailCard');
+    
+    // Show a premium skeleton loader while fetching
+    card.innerHTML = `
+        <div class="skeleton" style="width:200px; height:20px; margin-bottom:24px;"></div>
+        <div class="skeleton" style="width:100%; height:48px; margin-bottom:32px;"></div>
+        <div class="skeleton" style="width:100%; height:12px; margin-bottom:8px;"></div>
+        <div class="skeleton" style="width:100%; height:12px; margin-bottom:8px;"></div>
+        <div class="skeleton" style="width:80%; height:12px; margin-bottom:8px;"></div>
+    `;
+
+    const res = await api.getPost(postId);
+    if (!res.ok) {
+        card.innerHTML = `
+            <div style="text-align:center; padding: 40px 0;">
+                <h3 style="color:var(--danger); margin-bottom:12px;">Failed to load story</h3>
+                <p style="color:var(--text-secondary);">The story you are looking for may have been deleted or is currently unavailable.</p>
+                <a href="#home" class="btn btn-outline" style="margin-top:16px;">Back to Home</a>
+            </div>
+        `;
+        return;
+    }
+
+    const post = res.data;
+    const authorName = post.user ? post.user.name : 'Unknown';
+    const initial = authorName.charAt(0).toUpperCase();
+
+    // Render the beautiful full post details
+    card.innerHTML = `
+        <header class="post-detail-header">
+            <div class="post-detail-meta">
+                <div class="post-detail-author-avatar">${escapeHTML(initial)}</div>
+                <div class="post-detail-author-info">
+                    <div class="post-detail-author-name">By ${escapeHTML(authorName)}</div>
+                </div>
+            </div>
+            <h1 class="post-detail-title">${escapeHTML(post.title)}</h1>
+        </header>
+        <section class="post-detail-body">${escapeHTML(post.content)}</section>
+    `;
+}
+
