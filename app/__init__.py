@@ -36,8 +36,8 @@ def create_app():
     from app.posts.models import Post
     from app.feedback.models import Feedback
 
-    with app.app_context():
-        db.create_all()
+    from app.auth.models import RefreshToken, PasswordResetOTP, EmailVerificationOTP 
+
 
 
     from app.users.routes import users_bp
