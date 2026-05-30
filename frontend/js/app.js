@@ -5,7 +5,7 @@
 /* ---- Page routing ---- */
 const PAGES = [
     'home', 'login', 'register', 'forgot-password', 'reset-password',
-    'create-post', 'edit-post', 'my-posts', 'profile', 'admin'
+    'verify-email', 'create-post', 'edit-post', 'my-posts', 'profile', 'admin'
 ];
 
 function navigateTo(page) {
@@ -57,10 +57,10 @@ function navigateTo(page) {
             loadProfile();
             break;
         case 'admin':
-            if (!isAdmin()) { 
+            if (!isAdmin()) {
                 showToast('Admin access required', 'error');
-                window.location.hash = '#home'; 
-                return; 
+                window.location.hash = '#home';
+                return;
             }
             loadAdminPanel();
             break;
@@ -121,11 +121,11 @@ function showToast(message, type = 'info') {
     // Swipe to dismiss gesture
     let startX = 0;
     let currentX = 0;
-    
+
     toast.addEventListener('touchstart', e => {
         startX = e.touches[0].clientX;
         toast.style.transition = 'none';
-    }, {passive: true});
+    }, { passive: true });
 
     toast.addEventListener('touchmove', e => {
         currentX = e.touches[0].clientX;
@@ -134,7 +134,7 @@ function showToast(message, type = 'info') {
             toast.style.transform = `translateX(${diff}px)`;
             toast.style.opacity = Math.max(0, 1 - (diff / 100));
         }
-    }, {passive: true});
+    }, { passive: true });
 
     toast.addEventListener('touchend', e => {
         toast.style.transition = '';
@@ -293,17 +293,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const rect = pageHeader.getBoundingClientRect();
             const x = e.clientX - rect.left; // x position within the element
             const y = e.clientY - rect.top;  // y position within the element
-            
+
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
-            
+
             // Calculate rotation (max 10 degrees)
             const rotateX = ((y - centerY) / centerY) * -10;
             const rotateY = ((x - centerX) / centerX) * 10;
-            
+
             pageHeader.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
         });
-        
+
         pageHeader.addEventListener('mouseleave', () => {
             pageHeader.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
             pageHeader.style.transition = 'transform 0.5s ease-out';

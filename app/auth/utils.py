@@ -86,7 +86,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-def send_otp_email(to_email, otp):
+def send_otp_email(to_email, otp, subject="Your Password Reset OTP", body_template="Your password reset OTP is: {otp}\nIt is valid for 15 minutes."):
     smtp_server = current_app.config.get("SMTP_SERVER")
     smtp_port = current_app.config.get("SMTP_PORT")
     smtp_username = current_app.config.get("SMTP_USERNAME")
@@ -100,9 +100,9 @@ def send_otp_email(to_email, otp):
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = to_email
-    msg['Subject'] = "Your Password Reset OTP"
+    msg['Subject'] = subject
 
-    body = f"Your password reset OTP is: {otp}\nIt is valid for 15 minutes."
+    body = body_template.format(otp=otp)
     msg.attach(MIMEText(body, 'plain'))
 
     try:
@@ -114,3 +114,36 @@ def send_otp_email(to_email, otp):
         print(f"OTP successfully sent to {to_email}")
     except Exception as e:
         print(f"Failed to send email: {e}")
+
+
+
+
+from datetime import datetime, timedelta
+from flask import current_app
+
+def generate_refresh_token():
+    return secrets.token_hex(64)
+
+
+def hash_token(token):
+
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
+def generate_access_token(user):  # this func() generates the access token.
+
+    payload = { # the payload is the data which is attacked to the token which expires in 15 minutes
+        "sub": user.id,
+        "email": user.email,
+        "exp": datetime.utcnow() + timedelta(minutes=15)
+    }
+
+    token = jwt.encode( # this function is use to encode the token and return the token 
+        payload,   # it take the data we want to add in the token 
+        current_app.config["SECRET_KEY" ], # it take the secret key to encode the token 
+        algorithm="HS256"  # it take the algorithm to encode the token 
+
+    )
+
+    return token
+

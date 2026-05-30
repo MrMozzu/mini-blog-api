@@ -171,4 +171,35 @@ def forgot_password():
 def reset_password():
     return reset_password_service(request.json)
 
-    
+from app.auth.services import verify_email_service, resend_verification_service
+
+@auth_bp.post('/verify-email')
+def verify_email():
+    return verify_email_service(request.json)
+
+@auth_bp.post('/resend-verification')
+def resend_verification():
+    return resend_verification_service(request.json)
+
+
+@auth_bp.post("/refresh")
+def refresh():  # this uses the rotate_refresh_token function from services to get a new access token and refresh token 
+
+    data = request.get_json()
+    refresh_token = data.get('refresh_token')
+
+    if not refresh_token:   
+        return jsonify({
+            "error": "Refresh token is required"
+        }), 400
+
+    token, error = rotate_refresh_token(refresh_token) # this will revoke the previous refresh token and create a new one 
+
+    if error:
+        return jsonify({
+            "error": error
+        }), 400
+
+    return jsonify(token), 200
+        
+

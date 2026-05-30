@@ -37,8 +37,14 @@ const api = {
     forgotPassword(email) {
         return this._request('POST', '/auth/forgot_password', { email });
     },
-    resetPassword(token, new_password) {
-        return this._request('POST', '/auth/reset-password', { token, new_password });
+    resetPassword(email, otp, new_password) {
+        return this._request('POST', '/auth/reset-password', { email, otp, new_password });
+    },
+    verifyEmail(email, otp) {
+        return this._request('POST', '/auth/verify-email', { email, otp });
+    },
+    resendVerification(email) {
+        return this._request('POST', '/auth/resend-verification', { email });
     },
     googleLogin() {
         window.location.href = `${API_BASE}/auth/google/login`;

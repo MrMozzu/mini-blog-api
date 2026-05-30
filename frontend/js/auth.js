@@ -50,12 +50,51 @@ function initAuth() {
         setLoading(btn, false);
 
         if (res.ok) {
-            showToast('Account created! Please sign in.', 'success');
-            window.location.hash = '#login';
+            showToast('Account created! Please verify your email.', 'success');
+            document.getElementById('verifyEmail').value = email;
+            window.location.hash = '#verify-email';
         } else {
             showToast(res.data.error || 'Registration failed', 'error');
         }
     });
+
+    /* ---- Verify Email ---- */
+    const verifyForm = document.getElementById('verifyForm');
+    if (verifyForm) {
+        verifyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('verifySubmitBtn');
+            setLoading(btn, true);
+            
+            const email = document.getElementById('verifyEmail').value.trim();
+            const otp = document.getElementById('verifyOTP').value.trim();
+            
+            const res = await api.verifyEmail(email, otp);
+            setLoading(btn, false);
+            
+            if (res.ok) {
+                showToast('Email verified! You can now log in.', 'success');
+                window.location.hash = '#login';
+            } else {
+                showToast(res.data.error || 'Verification failed', 'error');
+            }
+        });
+    }
+
+    const resendBtn = document.getElementById('resendVerifyBtn');
+    if (resendBtn) {
+        resendBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('verifyEmail').value.trim();
+            if (!email) {
+                showToast('Please enter your email first', 'error');
+                return;
+            }
+            
+            const res = await api.resendVerification(email);
+            showToast(res.data?.message || 'Verification email resent if account exists', 'info');
+        });
+    }
 
     /* ---- Forgot Password ---- */
     const forgotForm = document.getElementById('forgotForm');
@@ -69,7 +108,9 @@ function initAuth() {
         setLoading(btn, false);
 
         showToast(res.data.message || 'If account exists, reset email sent', 'info');
+        document.getElementById('resetEmail').value = email;
         forgotForm.reset();
+        window.location.hash = '#reset-password';
     });
 
     /* ---- Reset Password ---- */
@@ -78,6 +119,8 @@ function initAuth() {
         e.preventDefault();
         const btn = document.getElementById('resetSubmitBtn');
 
+        const email = document.getElementById('resetEmail').value.trim();
+        const otp = document.getElementById('resetOTP').value.trim();
         const password = document.getElementById('resetPassword').value;
         const confirm = document.getElementById('resetConfirm').value;
 
@@ -86,17 +129,13 @@ function initAuth() {
             return;
         }
 
-        // Extract token from URL hash params
-        const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-        const token = params.get('token');
-
-        if (!token) {
-            showToast('Invalid or missing reset token', 'error');
+        if (!email || !otp) {
+            showToast('Email and OTP are required', 'error');
             return;
         }
 
         setLoading(btn, true);
-        const res = await api.resetPassword(token, password);
+        const res = await api.resetPassword(email, otp, password);
         setLoading(btn, false);
 
         if (res.ok) {

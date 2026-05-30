@@ -20,12 +20,37 @@ def register_user(email, password):
     username = email.split('@')[0] if email else "User"
     admin_emails = ["muzammilahsan07@gmail.com"]
     role = "admin" if email in admin_emails else "user"
-    user = User(name=username, email=email, password_hash=hashed_password, role=role)  # collect it in an object 
+    user = User(name=username, email=email, password_hash=hashed_password, role=role, is_verified=False)  # collect it in an object 
 
     db.session.add(user) # added to the session
     db.session.commit()  # committed
  
-    return {"message": "User created"}, 201
+    # Generate and send email verification OTP
+    from app.auth.models import EmailVerificationOTP
+    from app.auth.utils import generate_reset_token, hash_token, send_otp_email
+    from datetime import timedelta
+
+    raw_otp = generate_reset_token()
+    hashed_otp = hash_token(raw_otp)
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
+    
+    otp_record = EmailVerificationOTP(
+        user_id=user.id,
+        email=email,
+        token_hash=hashed_otp,
+        expires_at=expires_at
+    )
+    db.session.add(otp_record)
+    db.session.commit()
+
+    send_otp_email(
+        email, 
+        raw_otp, 
+        subject="Verify your Email Address", 
+        body_template="Your email verification OTP is: {otp}\nIt is valid for 15 minutes."
+    )
+
+    return {"message": "User created. Please check your email for the verification code."}, 201
 
 
 from datetime import datetime, timedelta
@@ -38,6 +63,9 @@ def login(email, password):
 
     if not user:
         return {"error": "email is not registered"}, 401
+
+    if not user.is_verified:
+        return {"error": "Please verify your email address before logging in"}, 403
 
     if user.locked_until and user.locked_until > datetime.utcnow():
         return {"error": "Account locked"}, 403
@@ -250,3 +278,130 @@ def reset_password_service(data):
     return {
         "message": "Password reset successful"
     }, 200
+
+from app.auth.models import EmailVerificationOTP
+
+def verify_email_service(data):
+    email = data.get("email")
+    raw_otp = data.get("otp")
+
+    if not email or not raw_otp:
+        return {"error": "Email and otp are required"}, 400
+
+    raw_otp = str(raw_otp).strip()
+    hashed_otp = hash_token(raw_otp)
+
+    otp_record = EmailVerificationOTP.query.filter_by(
+        email=email,
+        token_hash=hashed_otp,
+        used=False
+    ).first()
+
+    if not otp_record:
+        return {"error": "Invalid OTP"}, 400
+
+    if otp_record.expires_at < datetime.utcnow():
+        return {"error": "OTP expired"}, 400
+
+    user = User.query.get(otp_record.user_id)
+    if not user:
+        return {"error": "User not found"}, 404
+
+    user.is_verified = True
+    otp_record.used = True
+    db.session.commit()
+
+    return {"message": "Email verified successfully!"}, 200
+
+def resend_verification_service(data):
+    email = data.get("email")
+    if not email:
+        return {"error": "Email is required"}, 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return {"message": "If this email is registered, a new OTP has been sent."}, 200
+
+    if user.is_verified:
+        return {"error": "User is already verified"}, 400
+
+    raw_otp = generate_reset_token()
+    hashed_otp = hash_token(raw_otp)
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
+
+    otp_record = EmailVerificationOTP(
+        user_id=user.id,
+        email=email,
+        token_hash=hashed_otp,
+        expires_at=expires_at
+    )
+    db.session.add(otp_record)
+    db.session.commit()
+
+    send_otp_email(
+        email, 
+        raw_otp, 
+        subject="Verify your Email Address", 
+        body_template="Your new email verification OTP is: {otp}\nIt is valid for 15 minutes."
+    )
+
+    return {"message": "If this email is registered, a new OTP has been sent."}, 200
+
+
+
+def create_refresh_token(token):  # this func() creates new refresh token and hash it and save it to db & set expiry date to 30 days 
+
+    raw_token = generate_refresh_token() # generate refresh token
+    hased_token = hash_token(raw_token) # hash the refresh token 
+
+    refresh_token = Refresh_token(  # this save refresh token to database, it extracts user id from token, set expiry date to 30 days
+        user_id = user.id,
+        token_hash = hashed_token, # here we save it in database, this helps to check if the token is valid or not, it prevents token theft
+        expires_at=datetime.utcnow() + timedelta(days=30)
+
+    )
+
+    db.session.add(refresh_token)
+    db.session.commit()
+
+    return raw_token
+
+
+def rotate_refresh_token(old_refresh_token):  # this funn() is used to generate new access and refresh token when the user is login 
+
+    hashed_old = hash_token(old_refresh_token) # it hash the old refresh token and check if it is valid or not
+    existing_token = RefreshToken.query.filter_by(token_hash=hased_old).first() # it check if the token is in database or not and also match its hash value with the hash value it genrated
+    
+    if not existing_token:
+        return None, "Invalid refresh token"
+
+    if existing_token.revoked:
+        return None, "Refresh token reuse detected"
+
+    if existing_token.expires_at < datetime.utcnow(): # it check if the token is expired or not
+        return None, "Refresh token expired"
+
+    # revoke the old token
+    existing_token.revoked = True  # if the token is used once it is revoked 
+
+    # create new token
+    new_raw_refresh_token = generate_refresh_token()  # generate new raw refresh token
+    new_hashed_refresh_token = hash_token(new_raw_refresh_token)  # hash the new refresh token 
+    
+    new_refresh_token = RefreshToken(  # then save it to the database
+        user_id = existing_token.user_id,
+        token_hash=new_hased_refresh_token,
+        expires_at = datetime.utcnow() + timedelta(days=30)
+
+    )
+
+    db.session.add(new_refresh_token)
+    db.session.commit()
+
+    return {
+        "access_token": generate_access_token(existing_token.user),  # this func() is call to generate new access token because the old access token is expired 
+        "refresh_token": new_raw_refresh_token  # and this func() is call to generate new refresh token because the old refresh token is expired 
+    }, None
+
+
+

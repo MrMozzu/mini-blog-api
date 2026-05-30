@@ -22,6 +22,8 @@ class User(db.Model):
 
     locked_until = db.Column(db.DateTime, nullable=True)
 
+    is_verified = db.Column(db.Boolean, default=False)
+
     post = db.relationship(
         "Post",
         backref="user",
